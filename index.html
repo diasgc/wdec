@@ -65,112 +65,119 @@
 	
         <div class="container-fluid">
             <div class="row">
+
                 <div class="col-sm-8">
-                    <form id="ascii85-form" class="p-3 m-0 border-0 bd-example">
-                        <h1>ASCII-85</h1>
-                        <div class="form-group input-material">
-                            <textarea type="text" class="text-monospace form-control" id="input-field" rows="3" oninput="ascii85encupd()" required></textarea>
-                            <label for="input-field">Input/Decoded String</label>
-                            <span id="in_chars">0 chars</span>
+                    
+                    <div class="form-floating">
+                        <select class="form-select" id="strEncoder" aria-label="Encoder Selection" data-style="btn-primary" onchange="encSelect(this)">
+                          <option value="1" selected>ASCII-85</option>
+                          <option value="2">BASE-64</option>
+                          <option value="3">HEX</option>
+                        </select>
+                        <label for="strEncoder">Available Encoders</label>
+                    </div>
+
+                    <form id="str-form" class="p-3 m-0 border-0 bd-example">
+                        <h1 id="str-title">ASCII-85</h1>
+                        <div class="form-floating input-material">
+                            <textarea type="text" class="text-monospace form-control" id="str-in" style="height: 100px" oninput="strInput('str-in','str-out','str-inc','str-outc')" required></textarea>
+                            <label for="str-in">Input/Decoded String</label>
+                            <span id="str-inc">0 chars</span>
                         </div>
-                        <div class="form-group input-material">
-                            <textarea class="text-monospace form-control" id="output-field" rows="3" required></textarea>
-                            <label for="output-field">Output/Encoded String</label>
-                            <span id="out_chars">0 chars</span>
-                            <button id="ascii86-dec" type="submit" class="btn btn-default" onclick="ascii85decode('output-field','input-field')">Decode</button>
+                        <div class="form-floating input-material">
+                            <textarea class="text-monospace form-control" id="str-out" style="height: 100px" required></textarea>
+                            <label for="str-out">Output/Encoded String</label>
+                            <span id="str-outc">0 chars</span>
+                            <button id="str-dec" type="submit" class="btn btn-default" onclick="strDecode('str-out','str-in')">Decode</button>
                         </div>
                     </form>
+
                     <script>
-                        function encode_ascii85(a) {
-                            var b, c, d, e, f, g, h, i, j, k;
-                            for (!/[^\x00-\xFF]/.test(a), b = "\x00\x00\x00\x00".slice(a.length % 4 || 4), a += b, 
-                            c = [], d = 0, e = a.length; e > d; d += 4) f = (a.charCodeAt(d) << 24) + (a.charCodeAt(d + 1) << 16) + (a.charCodeAt(d + 2) << 8) + a.charCodeAt(d + 3), 
-                            0 !== f ? (k = f % 85, f = (f - k) / 85, j = f % 85, f = (f - j) / 85, i = f % 85, 
-                            f = (f - i) / 85, h = f % 85, f = (f - h) / 85, g = f % 85, c.push(g + 33, h + 33, i + 33, j + 33, k + 33)) :c.push(122);
-                            return function(a, b) {
-                                for (var c = b; c > 0; c--) a.pop();
-                            }(c, b.length), String.fromCharCode.apply(String, c);
+                        function encSelect(sel){
+                            document.getElementById('str-title').innerHTML = sel.options[sel.selectedIndex].text;
                         }
 
-                        function decode_ascii85(a) {
-                            if (!a.startsWith("<~"))
-                                a="<~"+a;
-                            if (!a.endsWith("~>"))
-                                a+="~>";
-                            var c, d, e, f, g, h = String, l = "length", w = 255, x = "charCodeAt", y = "slice", z = "replace";
-                            for ("<~" === a[y](0, 2) && "~>" === a[y](-2), a = a[y](2, -2)[z](/\s/g, "")[z]("z", "!!!!!"), 
-                            c = "uuuuu"[y](a[l] % 5 || 5), a += c, e = [], f = 0, g = a[l]; g > f; f += 5) d = 52200625 * (a[x](f) - 33) + 614125 * (a[x](f + 1) - 33) + 7225 * (a[x](f + 2) - 33) + 85 * (a[x](f + 3) - 33) + (a[x](f + 4) - 33), 
-                            e.push(w & d >> 24, w & d >> 16, w & d >> 8, w & d);
-                            return function(a, b) {
-                                for (var c = b; c > 0; c--) a.pop();
-                            }(e, c[l]), h.fromCharCode.apply(h, e);
+                        function encode(encoder, a) {
+                            //console.log("Encoder:",encoder,"string:",a);
+                            switch(encoder) {
+                                case '1':
+                                    var b, c, d, e, f, g, h, i, j, k;
+                                    for (!/[^\x00-\xFF]/.test(a), b = "\x00\x00\x00\x00".slice(a.length % 4 || 4), a += b, 
+                                    c = [], d = 0, e = a.length; e > d; d += 4) f = (a.charCodeAt(d) << 24) + (a.charCodeAt(d + 1) << 16) + (a.charCodeAt(d + 2) << 8) + a.charCodeAt(d + 3), 
+                                    0 !== f ? (k = f % 85, f = (f - k) / 85, j = f % 85, f = (f - j) / 85, i = f % 85, 
+                                    f = (f - i) / 85, h = f % 85, f = (f - h) / 85, g = f % 85, c.push(g + 33, h + 33, i + 33, j + 33, k + 33)) :c.push(122);
+                                    return function(a, b) {
+                                        for (var c = b; c > 0; c--) a.pop();
+                                    }(c, b.length), String.fromCharCode.apply(String, c);
+                                case '2':
+                                    return btoa(a);
+                                default:
+                                    var hex, i;
+                                    var result = "";
+                                    for (i = 0; i < this.length; i++) {
+                                        hex = a.charCodeAt(i).toString(16);
+                                        result += ("000"+hex).slice(-4);
+                                    }
+                                    return result;
+                            }
                         }
 
-                        function ascii85encode(infield,outfield){
+                        function decode(encoder, a) {
+                            //console.log("Decoder:",encoder,"string:",a);
+                            switch(encoder) {
+                                case '1':
+                                    if (!a.startsWith("<~"))
+                                        a="<~"+a;
+                                    if (!a.endsWith("~>"))
+                                        a+="~>";
+                                    var c, d, e, f, g, h = String, l = "length", w = 255, x = "charCodeAt", y = "slice", z = "replace";
+                                    for ("<~" === a[y](0, 2) && "~>" === a[y](-2), a = a[y](2, -2)[z](/\s/g, "")[z]("z", "!!!!!"), 
+                                    c = "uuuuu"[y](a[l] % 5 || 5), a += c, e = [], f = 0, g = a[l]; g > f; f += 5) d = 52200625 * (a[x](f) - 33) + 614125 * (a[x](f + 1) - 33) + 7225 * (a[x](f + 2) - 33) + 85 * (a[x](f + 3) - 33) + (a[x](f + 4) - 33), 
+                                    e.push(w & d >> 24, w & d >> 16, w & d >> 8, w & d);
+                                    return function(a, b) {
+                                        for (var c = b; c > 0; c--) a.pop();
+                                    }(e, c[l]), h.fromCharCode.apply(h, e);
+                                case '2':
+                                    return atoa(a);
+                                default:
+                                    var j;
+                                    var hexes = a.match(/.{1,4}/g) || [];
+                                    var back = "";
+                                    for(j = 0; j<hexes.length; j++) {
+                                    back += String.fromCharCode(parseInt(hexes[j], 16));
+                                    }
+                                    return back;
+                            }
+                        }
+
+                        function strEncode(infield,outfield){
                             let instr = document.getElementById(infield).value;
-                            var encoded = encode_ascii85(instr);
-                            document.getElementById(outfield).value = encoded;
+                            let encoder = document.getElementById('strEncoder').value;
+                            document.getElementById(outfield).value = encode(encoder,instr);
                             //qrc.makeCode(encoded); 
                         }
 
-                        function ascii85decode(outfield,infield){
+                        function strDecode(outfield,infield){
                             let outstr = document.getElementById(outputfield).value;
-                            var decoded = decode_ascii85(outstr);
-                            document.getElementById(inputfield).value = decoded;
+                            let sel =document.getElementById('strEncoder');
+                            let encoder = sel.options[sel.selectedIndex].value;
+                            document.getElementById(inputfield).value = decode(encoder,outstr);
                         }
 
-                        function ascii85encupd(){
-                            let l = document.getElementById("input-field").value.length;
-                            document.getElementById("in_chars").innerHTML = l + " chars";
-                            let instr = document.getElementById("input-field").value;
-                            var encoded = encode_ascii85(instr);
-                            document.getElementById("output-field").value = encoded;
-                            let ll = document.getElementById("output-field").value.length;
-                            document.getElementById("out_chars").innerHTML = ll + " chars";
-                        }
-                    </script>
-                </div>
-                
-                <div class="col-sm-8">
-                    <form id="base64-form" class="p-3 m-0 border-0 bd-example">
-                        <h1>BASE-64</h1>
-                        <div class="form-group input-material">
-                            <textarea type="text" class="text-monospace form-control" id="b64-in" rows="3" oninput="b64encupd('b64-in','b64-out','b64-inchars','b64-outchars')" required></textarea>
-                            <label for="b64-in">Input/Decoded String</label>
-                            <span id="b64-inchars">0 chars</span>
-                        </div>
-                        <div class="form-group input-material">
-                            <textarea class="text-monospace form-control" id="b64-out" rows="3" required></textarea>
-                            <label for="b64-in">Output/Encoded String</label>
-                            <span id="b64-outchars">0 chars</span>
-                            <button id="b64-dec" type="submit" class="btn btn-default" onclick="b64decode('b64-out','b64-in')">Decode</button>
-                        </div>
-                    </form>
-                    <script>
-                        function b64encode(infield,outfield){
-                            let instr = document.getElementById(infield).value;
-                            var encoded = btoa(instr);
-                            document.getElementById(outfield).value = encoded;
-                            //qrc.makeCode(encoded); 
-                        }
-
-                        function b64decode(outfield,infield){
-                            let outstr = document.getElementById(outputfield).value;
-                            var decoded = atoa(outstr);
-                            document.getElementById(inputfield).value = decoded;
-                        }
-
-                        function b64encupd(infield,outfield,in_chars,out_chars){
+                        function strInput(infield,outfield,in_chars,out_chars){
                             let i  = document.getElementById(infield);
                             let o  = document.getElementById(outfield);
+                            let sel =document.getElementById('strEncoder');
+                            let encoder = sel.options[sel.selectedIndex].value;
                             document.getElementById(in_chars).innerHTML = i.value.length + " chars";
                             let instr = i.value;
-                            var encoded = btoa(instr);
+                            var encoded = encode(encoder,instr);
                             o.value = encoded;
                             document.getElementById(out_chars).innerHTML = encoded.length + " chars";
                         }
                     </script>
                 </div>
+
 
                 <div class="col-sm-4">
                     <h3>A sidebar</h3>
