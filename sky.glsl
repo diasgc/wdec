@@ -1,4 +1,4 @@
-Sky.fragment01=´
+Sky.fragment04=´
   varying vec2 vUv;
   uniform vec3 sunPosition;
   uniform float clouds;
