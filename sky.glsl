@@ -1,4 +1,4 @@
-Sky.fragment04=´
+const SkyFrag04=´
   varying vec2 vUv;
   uniform vec3 sunPosition;
   uniform float clouds;
@@ -19,22 +19,20 @@ Sky.fragment04=´
   void main(){
     float i = sunPosition.y;
     vec2 uv = 1. - vUv * vUv;
-    float ii = i - 0.06;
+    vec3 atm = atmCol;
+    vec3 sun = sunCol;
 
-    float grey = clamp(0.8 - 0.2 * rain, 0.4, 0.8);
-    // att 0=cloudy 1=clear
-    float att = 1. - clip( rain + pow(clouds,10.));
-    vec3 atm = mix(vec3(grey), atmCol, att);
-    vec3 sun = mix(vec3(grey + 0.1), sunCol, att);
-    
     vec3 sl = atan_n(i, sunExt, 72.);
-    float tw = att/(ii * ii * 216. + 1.);
-    float tw2 = 1. * att/(i * i * 216. + 1.);
-    vec3 sc = clip( sl.zyx * 20. * sun );
-      
-    vec3 cZen = clip(sl.y * 0.22 * sc + sl.y * atm);
-    vec3 cHor = clip(tw * sc * 0.22 + 0.52 * tw2 * sun + sl.z * atm);
-  
-    gl_FragColor = vec4( mix( cZen,cHor,  uv.y), 1.0 );
+    vec3 sl2 = sl.y * atan_n(i, vec3(0.018, 0.0, -0.018), 28.);
+    float tw = 0.64 * humidity + (1.)/(i * i * 72. + 1.);
+
+    vec3 cZen = clip(sl.y * atm);
+    vec3 cHor = clip(tw * sl2.zyx + sl.x * atm);
+
+    // Output to screen
+    //gl_FragColor = vec4(cHor, 1.0 );
+    gl_FragColor = vec4( mix( cZen,cHor, uv.y), 1.0 );
   }
 ´
+
+
