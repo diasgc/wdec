@@ -18,16 +18,20 @@ const skyFrag04 = `
 
   void main(){
     float i = sunPosition.y;
-    vec2 uv = 1. - vUv * vUv;
-    vec3 atm = atmCol;
-    vec3 sun = sunCol;
+    vec2 uv = 1. - vUv;
 
-    vec3 sl = atan_n(i, sunExt, 72.);
-    vec3 sl2 = sl.y * atan_n(i, vec3(0.018, 0.0, -0.018), 28.);
-    float tw = 0.64 * humidity + (1.)/(i * i * 72. + 1.);
+    float grey = clamp(0.8 - 0.2 * rain, 0.4, 0.8);
+    float clr = 1. - clip( rain + pow(clouds,10.));
+    float mnl = clr * moon * 0.07; 
+    vec3 atm = mix(vec3(grey), atmCol, clr);
+    vec3 sun = mix(vec3(grey + 0.1), sunCol, clr);
+    
+    vec3 sl = max(atan_n(i, sunExt, 72.), mnl);
+    vec3 sl2 = max(sl.y * atan_n(i, vec3(0.018, 0.0, -0.018), 28.), mnl);
+    float tw = 0.64 * humidity + 1. / (i * i * 72. + 1.);
 
     vec3 cZen = clip(sl.y * atm);
-    vec3 cHor = clip(tw * sl2.zyx + sl.x * atm);
+    vec3 cHor = clip(tw * sl2.zyx + sl.y * atm);
 
     // Output to screen
     //gl_FragColor = vec4(cHor, 1.0 );
