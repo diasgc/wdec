@@ -1,4 +1,4 @@
-const skyFrag04=´
+const skyFrag04 = `
   varying vec2 vUv;
   uniform vec3 sunPosition;
   uniform float clouds;
@@ -33,6 +33,4 @@ const skyFrag04=´
     //gl_FragColor = vec4(cHor, 1.0 );
     gl_FragColor = vec4( mix( cZen,cHor, uv.y), 1.0 );
   }
-´
-
-
+`
