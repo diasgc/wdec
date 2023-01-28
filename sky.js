@@ -1,4 +1,4 @@
-const SkyFrag04=´
+const skyFrag04=´
   varying vec2 vUv;
   uniform vec3 sunPosition;
   uniform float clouds;
